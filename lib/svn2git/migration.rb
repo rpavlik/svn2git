@@ -27,6 +27,7 @@ module Svn2Git
     def parse(args)
       # Set up reasonable defaults for options.
       options = {}
+      options[:continue] = false
       options[:verbose] = false
       options[:rootistrunk] = false
       options[:trunk] = 'trunk'
@@ -87,7 +88,11 @@ module Svn2Git
         opts.on('-v', '--verbose', 'Be verbose in logging -- useful for debugging issues') do
           options[:verbose] = true
         end
-
+           
+        opts.on('-c', '--continue', 'In case your git svn fetch failed, re-run with this options, it will bypass the init phase') do
+          options[:continue] = true
+        end    
+        
         opts.separator ""
 
         # No argument, shows at tail.  This will print an options summary.
@@ -111,24 +116,28 @@ module Svn2Git
       rootistrunk = @options[:rootistrunk]
       authors = @options[:authors]
       exclude = @options[:exclude]
-
-      if rootistrunk
-        # Non-standard repository layout.  The repository root is effectively 'trunk.'
-        run_command("git svn init --no-metadata --trunk=#{@url}")
-
+      continue = @options[:continue]
+      
+      if continue
+        puts "Trying to continue previous run : bypassing git init\n\n"
       else
-        cmd = "git svn init --no-metadata "
+        if rootistrunk
+          # Non-standard repository layout.  The repository root is effectively 'trunk.'
+          run_command("git svn init --no-metadata --trunk=#{@url}")
 
-        # Add each component to the command that was passed as an argument.
-        cmd += "--trunk=#{trunk} " unless trunk.nil?
-        cmd += "--tags=#{tags} " unless tags.nil?
-        cmd += "--branches=#{branches} " unless branches.nil?
+        else
+          cmd = "git svn init --no-metadata "
 
-        cmd += @url
+          # Add each component to the command that was passed as an argument.
+          cmd += "--trunk=#{trunk} " unless trunk.nil?
+          cmd += "--tags=#{tags} " unless tags.nil?
+          cmd += "--branches=#{branches} " unless branches.nil?
 
-        run_command(cmd)
+          cmd += @url
+
+          run_command(cmd)
+        end
       end
-
       run_command("git config svn.authorsfile #{authors}") unless authors.nil?
 
       cmd = "git svn fetch"
