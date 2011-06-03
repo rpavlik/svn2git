@@ -35,6 +35,7 @@ module Svn2Git
     def parse(args)
       # Set up reasonable defaults for options.
       options = {}
+      options[:continue] = false
       options[:verbose] = false
       options[:metadata] = false
       options[:nominimizeurl] = false
@@ -121,6 +122,10 @@ module Svn2Git
           options[:verbose] = true
         end
 
+        opts.on('-c', '--continue', 'In case your git svn fetch failed, re-run with this options, it will bypass the init phase') do
+          options[:continue] = true
+        end
+
         opts.separator ""
 
         # No argument, shows at tail.  This will print an options summary.
@@ -138,6 +143,7 @@ module Svn2Git
   private
 
     def clone!
+      continue = @options[:continue]
       trunk = @options[:trunk]
       branches = @options[:branches]
       tags = @options[:tags]

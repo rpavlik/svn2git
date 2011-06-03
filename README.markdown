@@ -179,6 +179,11 @@ You can turn on verbose logging with the '-v' or '--verbose' flags, like so:
 
     $ svn2git http://svn.yoursite.com/path/to/repo --verbose
 
+In case you have git svn fetch errors you can add '-c' or '--continue' flags
+to your command line and run it again, like so:
+
+     $ svn2git http://svn.yoursite.com/path/to/repo --continue
+
 FAQ
 ---
 
