@@ -234,6 +234,7 @@ module Svn2Git
            lbranch = branch
            lbranch = 'master' if branch == 'trunk'
            run_command("git checkout -f #{lbranch}")
+           run_command("git clean -df")
            run_command("git rebase remotes/svn/#{branch}")
            next
         end
